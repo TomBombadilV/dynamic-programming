@@ -16,25 +16,36 @@ bool partition(std::vector<int> nums) {
     }
 
     int half = sum / 2;
-
-    std::vector<bool> canSplit(half + 1);
-    canSplit[0] = true;
-
-    std::vector<std::vector<bool>> numsUsed(half + 1, std::vector<bool>(nums.size()));
     
-        for (unsigned currSum = 1; currSum <= half; currSum++) {
-            for (unsigned i = 0; i < nums.size(); i++) {
-                int n = nums[i];
-                if (n <= currSum) {
-                    if (canSplit[currSum - n] && !numsUsed[currSum - n][i]) {
-                        canSplit[currSum] = true;
-                        numsUsed[currSum] = numsUsed[currSum - n];
-                        numsUsed[currSum][i] = true;
-                        break;
-                    }
+    // Check each sum from 0 -> half, and see if there is a subset
+    // of numbers that sums to that sum
+    std::vector<bool> canSplit(half + 1);
+    canSplit[0] = true;  // Sum of 0 is always true
+
+    // Keep track of the numbers used to create each sum
+    std::vector<std::vector<bool>> numsUsed(half + 1, std::vector<bool>(nums.size()));
+   
+    // Check each sum from 1 -> half
+    for (unsigned currSum = 1; currSum <= half; currSum++) {
+        // Check each number in the list
+        for (unsigned i = 0; i < nums.size(); i++) {
+            int n = nums[i];
+            if (n <= currSum) {
+                // If it was not used in the set to build sum - n, and 
+                // there is a valid subset to build sum - n, then there
+                // is a valid solution for the current sum
+                if (canSplit[currSum - n] && !numsUsed[currSum - n][i]) {
+                    canSplit[currSum] = true;
+                    // Copy numbers used in sum - n
+                    numsUsed[currSum] = numsUsed[currSum - n];
+                    // Mark n as used
+                    numsUsed[currSum][i] = true;
+                    break;
                 }
             }
         }
+    }
+    
     // Print out numsUsed
     for (unsigned i = 0; i < half + 1; i++) {
         for (unsigned j = 0; j < nums.size(); j++) {
@@ -43,10 +54,7 @@ bool partition(std::vector<int> nums) {
         std::cout << "\n";
     }
 
-
     return canSplit[canSplit.size() - 1];
-
-
 }
 
 int main() {
